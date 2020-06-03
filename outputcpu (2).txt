@@ -1,0 +1,104 @@
+package memory;
+import java.io.*;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Map;
+import java.text.DecimalFormat;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.FileNotFoundException; 
+import java.util.LinkedHashMap; 
+import org.json.JSONObject; 
+import org.json.JSONArray;
+import org.json.JSONException; 
+
+public class Demo {
+
+	public static void main(String[] args) throws JSONException {
+		// TODO Auto-generated method stub
+
+String text = "";
+		
+
+		ArrayList<Double> values=new ArrayList<Double>();
+
+		try {
+			FileReader readfile = new FileReader("G:\\cpu.txt");
+			BufferedReader readbuffer = new BufferedReader(readfile);
+			
+			for (int i = 1; i <= 680; i++) {
+				text = readbuffer.readLine() + "\n";
+				text = text.replaceAll("( )+", " ");
+				String[] str=text.split(" ");
+				String value=str[8].toString();
+				
+				values.add(Double.parseDouble(value));	
+			}
+			
+			readbuffer.close();
+		}
+		catch(FileNotFoundException e){e.printStackTrace();}
+		catch(IOException e){e.printStackTrace();}
+		
+
+		double avg=0;
+		double max=0;
+		
+		DecimalFormat df = new DecimalFormat("#0.0"); 
+		DecimalFormat df1 = new DecimalFormat("#0.00"); 
+		
+
+		for(int i=0;i<values.size();i++)
+		{
+			avg=avg+values.get(i);
+			if(values.get(i)>max)
+			{
+				max=values.get(i);
+			}
+		}
+		max = Double.valueOf(df1.format(max));
+		avg = avg/values.size();
+		avg = Double.valueOf(df1.format(avg));
+		
+		
+		JSONObject obj = new JSONObject();
+		JSONObject obj1 = new JSONObject();
+		
+		
+		Map m = new LinkedHashMap(values.size()); 
+	       
+		for(int i=0;i<values.size();i++)
+		{	
+			 m.put((i+1)+"s", values.get(i)); 
+		}
+	
+		
+		obj1.put("avgcpu", avg);
+		
+		obj1.put("maxcpu", max);
+		obj1.put("values", m);
+		obj.put("sampletransaction", obj1);
+		
+		JSONArray j = new JSONArray(); 
+		
+		j.put(obj);
+		
+		
+		
+		try(FileWriter file = new FileWriter("myJSON.json"))
+		{
+			file.write(j.toString());
+			file.flush();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		
+		System.out.println(j);
+		
+	}
+
+
+}
